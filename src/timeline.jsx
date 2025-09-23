@@ -3,13 +3,13 @@ import { validateCombo, analyzeCombo } from "./zero.js";
 import "./timeline.css";
 
 const Timeline = () => {
-    const [inputText, setInputText] = useState("a11 a12 a13 a11 a12 a13 a11 a12 a13");
+    const [inputText, setInputText] = useState("a41 a42 a43 a11 a12 a13 a41 a42 a43 a11 a12 a13");
     const [data, setData] = useState(inputText.split(" "));
     const [state, setState] = useState(analyzeCombo(data));
 
     const { cycle, delay, damage } = state;
 
-    const timelineLength = Math.max(...cycle.map((sk) => sk[5]));
+    const totalTime = Math.max(...cycle.map((sk) => sk[5]));
     const interval = 30;
     const pixelsPerMs = 0.5;
 
@@ -46,10 +46,10 @@ const Timeline = () => {
     return (
         <div style={{ display: "flex", flexDirection: "column", fontFamily: "sans-serif" }}>
             {/* 타임라인 영역 */}
-            <div style={{ display: "flex", height: `${(timelineLength + interval) * pixelsPerMs}px`}}>
+            <div style={{ display: "flex", height: `${(totalTime + interval) * pixelsPerMs}px`}}>
                 {/* 시간 눈금 */}
                 <div style={{ width: "60px", position: "relative", background: "#f0f0f0"}}>
-                    {Array.from({ length: timelineLength / interval + 1 }, (_, i) => (
+                    {Array.from({ length: totalTime / interval + 1 }, (_, i) => (
                         <div
                             key={i}
                             style={{
@@ -93,7 +93,7 @@ const Timeline = () => {
             <div style={{ marginTop: "20px", fontSize: "14px" }}>
                 <p><strong>Total Delay:</strong> {delay} ms</p>
                 <p><strong>Total Damage (Relative):</strong> {damage}</p>
-                <p><strong>DPS (Relative):</strong> {(damage / delay * 1000).toFixed(2)}</p>
+                <p><strong>DPS (Relative):</strong> {(damage / totalTime * 1000).toFixed(2)}</p>
             </div>
 
             {/* 입력 박스 + 버튼 */}

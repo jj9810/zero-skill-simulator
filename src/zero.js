@@ -26,8 +26,8 @@ const skills = {
         name: '피어스 쓰러스트',
         character: 'Alpha',
         assist: 'b12',
-        delay: 300, // a13 초기화시 510
-        assistDelay: 300,
+        delay: 300,
+        assistDelay: 510,
         hexaDeal: ((185 + 3 * hexA1) * 6) * 2.8
     },
     a13: {
@@ -35,7 +35,7 @@ const skills = {
         name: '쉐도우 스트라이크',
         character: 'Alpha',
         assist: 'b11',
-        delay: 270,
+        delay: 270,  // 제자리
         hexaDeal: ((211 + 4 * hexA1) * 8
             + (334 + 6 * hexA1) * 1) * 2.8  // 검기 포함
     },
@@ -63,8 +63,8 @@ const skills = {
         name: '롤링 커브',
         character: 'Alpha',
         assist: 'b31',
-        delay: 960,
-        assistDelay: 750,
+        delay: 690,
+        assistDelay: 690,
         hexaDeal: ((390 + 7 * hexA3) * 12
             + (450 + 12 * hexA2) * 3) * 2.2
     },
@@ -73,7 +73,7 @@ const skills = {
         name: '롤링 어썰터',
         character: 'Alpha',
         assist: 'b31',
-        delay: 810,
+        delay: 570,
         assistDelay: 90,
         hexaDeal: ((405 + 7 * hexA3) * 12
             + (440 + 18 * hexA2) * 4) * 2.2
@@ -114,7 +114,7 @@ const skills = {
         character: 'Beta',
         assist: 'a11',
         delay: 390,
-        assistDelay: 720, // cancel 270
+        assistDelay: 630, // cancel 270
         hexaDeal: ((217 + 3 * hexA1) * 6) * 2.8
     },
     b12: {
@@ -150,7 +150,7 @@ const skills = {
         character: 'Beta',
         assist: 'a31',
         delay: 360,
-        assistDelay: 360,
+        assistDelay: 480,
         hexaDeal: ((285 + 6 * hexA3) * 6) * 2.2
     },
     b32: {
@@ -230,7 +230,7 @@ function analyzeCombo(codes) {
 
         const assist = skills[sk.assist];
         if (currentAssist == 'b11' && assist.code == 'b12') {
-            assistDelay = Math.max(delay, assistDelay - 720 + 270);
+            assistDelay = Math.max(delay, assistDelay - 630 + 270);
         }
 
         delay += sk.delay;
