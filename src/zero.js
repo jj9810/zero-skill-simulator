@@ -244,7 +244,11 @@ function analyzeCombo(codes) {
                 assistDelay,
                 assistDelay + assist.assistDelay,
             ]);
-            damage += assist.hexaDeal;
+            let hexaDeal = assist.hexaDeal;
+            if (assist.code == 'b22') {
+                hexaDeal *= 0.6;    // 스로잉 웨폰 어시스트 뎀감 (-40%)
+            }
+            damage += hexaDeal;
             assistDelay += assist.assistDelay;
             currentAssist = assist.code;
         }
