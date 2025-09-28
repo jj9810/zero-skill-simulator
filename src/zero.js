@@ -37,7 +37,8 @@ const skills = {
         assist: 'b11',
         delay: 270,  // 제자리
         hexaDeal: ((211 + 4 * hexA1) * 8
-            + (334 + 6 * hexA1) * 1) * 2.8  // 검기 포함
+            + (334 + 6 * hexA1) * 1     // 검기
+        ) * 2.8
     },
     a21: {
         code: 'a21',
@@ -56,7 +57,8 @@ const skills = {
         delay: 270,
         assistDelay: 270,
         hexaDeal: ((285 + 5 * hexA2) * 9
-            + (120 + 3 * hexA2) * 4) * 2.2
+            + (120 + 3 * hexA2) * 4
+        ) * 2.2
     },
     a31: {
         code: 'a31',
@@ -65,8 +67,9 @@ const skills = {
         assist: 'b31',
         delay: 690,
         assistDelay: 690,
-        hexaDeal: ((390 + 7 * hexA3) * 12
-            + (450 + 12 * hexA2) * 3) * 2.2
+        hexaDeal: ((390 + 7 * hexA3) * 11
+            + (450 + 10 * hexA2) * (1 + 0.3 * 3)       // 검기: 4회
+        ) * 2.2
     },
     a32: {
         code: 'a32',
@@ -75,8 +78,9 @@ const skills = {
         assist: 'b31',
         delay: 570,
         assistDelay: 90,
-        hexaDeal: ((405 + 7 * hexA3) * 12
-            + (440 + 18 * hexA2) * 4) * 2.2
+        hexaDeal: ((435 + 4 * hexA3) * 12
+            + (435 + 15 * hexA2) * (1 + 0.3 * 3)       // 검기: 4회
+        ) * 2.2
     },
     a41: {
         code: 'a41',
@@ -86,7 +90,8 @@ const skills = {
         delay: 240,
         assistDelay: 240,
         hexaDeal: ((175 + 3 * hexA4 + (10 + 2 * hexA1)) * 8
-            + (115 + 2 * hexA4 + (10 + 1 * hexA1)) * 3 * 6) * 2.2
+            + (115 + 2 * hexA4 + (10 + 1 * hexA1)) * 3 * 6      // 회오리 6타
+        ) * 2.2
     },
     a42: {
         code: 'a42',
@@ -105,8 +110,9 @@ const skills = {
         delay: 270,
         assistDelay: 270,
         hexaDeal: ((325 + 5 * hexA4 + (2 * hexA1)) * 10
-            + (325 + 5 * hexA4 + (2 * hexA1)) * 4 * 6
-            + (210 + 4 * hexA4 + (2 * hexA1)) * 4) * 2.2
+            + (325 + 5 * hexA4 + (2 * hexA1)) * 4 * 6       // 회오리 2회
+            + (210 + 4 * hexA4 + (2 * hexA1)) * 4           // 전기 4회
+        ) * 2.2
     },
     b11: {
         code: 'b11',
@@ -189,7 +195,8 @@ const skills = {
         assistDelay: 360,
         hexaDeal: ((365 + 6 * hexA4 + (2 * hexA1)) * 10
             + (255 + 5 * hexA4 + (2 * hexA1)) * 10
-            + (335 + 5 * hexA4 + (2 * hexA1)) * 5) * 2.2
+            + (335 + 5 * hexA4 + (2 * hexA1)) * 5       // 전기 5회
+        ) * 2.2
     },
 };
 
