@@ -11,6 +11,10 @@ const hexA2 = 30;  // 플래시 어썰터 계열
 const hexA3 = 30;  // 롤링 커브 계열
 const hexA4 = 30;  // 윈드 커터 계열
 
+/*
+스킬 딜레이 표: https://gall.dcinside.com/mini/board/view/?id=alphabeta&no=3636
+모든 딜레이는 연계, 개활지 기준
+ */
 const skills = {
     a11: {
         code: 'a11',
@@ -36,6 +40,7 @@ const skills = {
         character: 'Alpha',
         assist: 'b11',
         delay: 270,  // 제자리
+        assistDelay: 0,  // 어시스트가 없는 스킬
         hexaDeal: ((211 + 4 * hexA1) * 8
             + (334 + 6 * hexA1) * 1     // 검기
         ) * 2.8
@@ -120,7 +125,7 @@ const skills = {
         character: 'Beta',
         assist: 'a11',
         delay: 390,
-        assistDelay: 630, // cancel 270
+        assistDelay: 270,  // 기본 630
         hexaDeal: ((217 + 3 * hexA1) * 6) * 2.8
     },
     b12: {
@@ -156,7 +161,7 @@ const skills = {
         character: 'Beta',
         assist: 'a31',
         delay: 360,
-        assistDelay: 480,
+        assistDelay: 360,
         hexaDeal: ((285 + 6 * hexA3) * 6) * 2.2
     },
     b32: {
@@ -165,6 +170,7 @@ const skills = {
         character: 'Beta',
         assist: 'a32',
         delay: 60,  // 최소
+        assistDelay: 0,  // 어시스트가 없는 스킬
         hexaDeal: ((215 + 5 * hexA3) * 2) * 2.2  // 1회
     },
     b41: {
@@ -220,46 +226,145 @@ function validateCombo(codes) {
     return characterSets.size === 1;
 }
 
+function getLastSkill(log, type) {
+    return log.findLast(sk => sk[0] === type) || null;
+}
+
+/*
+최신 로직: https://www.inven.co.kr/board/maple/2294/356617
+ */
 function analyzeCombo(codes) {
-    let delay = 0;
-    let assistDelay = 60;
-    let currentAssist = null;
+    let delay = 0;  // 본체의 시간
+    let assistDelay = 60;   // 어시스트 캐릭터의 시간
+    let currentAssist = null;  // 본체 행동시점의 어시스트 캐릭터 동작
+    let assistQueue = null;
     const log = [];
 
-    let damage = 0.0;
-
     for (const sk of codes.map((x) => skills[x])) {
-        log.push(['BASE', sk.code, sk.name, sk.character, delay, delay + sk.delay]);
-        damage += sk.hexaDeal
-        if (assistDelay < delay) {
-            assistDelay = delay;
-        }
-
-        const assist = skills[sk.assist];
-        if (currentAssist == 'b11' && assist.code == 'b12') {
-            assistDelay = Math.max(delay, assistDelay - 630 + 270);
-        }
-
+        // 본체 스킬 발동
+        let baseAction = [
+            'BASE',
+            sk.code,
+            sk.name,
+            sk.character,
+            delay,
+            delay + sk.delay,
+            sk.hexaDeal
+        ];
+        log.push(baseAction);
         delay += sk.delay;
 
-        if (assistDelay < delay && assistDelay <= 2600) {
-            log.push([
-                'ASSIST',
-                assist.code,
-                assist.name,
-                assist.character,
-                assistDelay,
-                assistDelay + assist.assistDelay,
-            ]);
-            let hexaDeal = assist.hexaDeal;
-            if (assist.code == 'b22') {
-                hexaDeal *= 0.6;    // 스로잉 웨폰 어시스트 뎀감 (-40%)
+        // 2.6초 이내에만 어시스트가 나감
+        if (delay <= 2600) {
+            // 본체에 대응하는 어시스트 스킬
+            const assist = skills[sk.assist];
+
+            if (currentAssist == null) {
+                // 어시스트 캐릭터가 휴식 중
+                let assistAction = [
+                    'ASSIST',
+                    assist.code,
+                    assist.name,
+                    assist.character,
+                    assistDelay,
+                    assistDelay + assist.assistDelay,
+                    assist.hexaDeal
+                ];
+                log.push(assistAction);
+
+                assistDelay += assist.assistDelay;
+
+                // 다음 본체스킬 발동시점에 어시스트 캐릭터 동작 설정
+                if (delay >= assistAction[5]) {
+                    currentAssist = null;
+                } else {
+                    currentAssist = assistAction;
+                }
+            } else {
+                // 어시스트 캐릭터가 동작 중
+                if (assistQueue == null) {
+                    // 아시스트 큐 X
+                    // 이미 시전중인 어시스트가 끝나면 현재 어시스트 스킬 발동
+                    let assistAction = [
+                        'ASSIST',
+                        assist.code,
+                        assist.name,
+                        assist.character,
+                        assistDelay,
+                        assistDelay + assist.assistDelay,
+                        assist.hexaDeal
+                    ];
+                    log.push(assistAction);
+
+                    // 다음 본체스킬 발동시점에 어시스트 캐릭터 동작 설정
+                    if (delay >= assistAction[5]) {
+                        // 휴식
+                        currentAssist = null;
+                    } else {
+                        // 다음 본체스킬 시전시 어시스트 캐릭터 동작은?
+                        if (delay > assistAction[4]) {
+                            // 다음 본체스킬 시작전에 어시스트 처리 가능
+                            // 큐는 빈상태로 유지
+                            currentAssist = assistAction;
+                        } else {
+                            // 다음 본체스킬 시작전에 어시스트 처리 불가능
+                            // 큐를 채움
+                            assistQueue = assistAction;
+                        }
+                    }
+
+                    assistDelay += assist.assistDelay;
+                } else {
+                    // 어시스트 큐 O
+                    // 0. assistDelay 재설정
+                    assistDelay = baseAction[4];
+
+                    // 1. 현재 어시스트 동작 강제종료
+                    currentAssist[5] = assistDelay;
+
+                    // 2. 큐 어시스트를 즉시 적용하고 큐 비움
+                    let queuedSkillDelay = assistQueue[5] - assistQueue[4];
+                    assistQueue[4] = assistDelay;
+                    assistQueue[5] = assistDelay + queuedSkillDelay;
+                    assistDelay += queuedSkillDelay;
+
+                    assistQueue = null;
+
+                    // 3. 일반적인 어시스트 처리 진행
+                    let assistAction = [
+                        'ASSIST',
+                        assist.code,
+                        assist.name,
+                        assist.character,
+                        assistDelay,
+                        assistDelay + assist.assistDelay,
+                        assist.hexaDeal
+                    ];
+                    log.push(assistAction);
+
+                    assistDelay += assist.assistDelay;
+
+                    // 다음 본체스킬 발동시점에 어시스트 캐릭터 동작 설정
+                    if (delay >= assistAction[5]) {
+                        currentAssist = null;
+                    } else {
+                        currentAssist = assistAction;
+                    }
+                }
             }
-            damage += hexaDeal;
-            assistDelay += assist.assistDelay;
-            currentAssist = assist.code;
+        }
+        // console.log(currentAssist, assistQueue);
+    }
+
+    let damage = 0.0;
+    for (const action of log) {
+        if (action[0] === 'ASSIST' && action[1] === 'b22') {
+            damage += action[6] * 0.6;
+        } else {
+            damage += action[6];
         }
     }
+
     console.log(log);
     console.log(delay, damage);
 
@@ -274,4 +379,4 @@ function analyzeCombo(codes) {
 // cycle = ['b31', 'b32', 'b21', 'b22', 'b11', 'b12'];  // Beta
 // analyzeCombo(cycle);
 
-export { validateCombo, analyzeCombo };
+export {validateCombo, analyzeCombo};
