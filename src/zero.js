@@ -72,8 +72,10 @@ const skills = {
         assist: 'b31',
         delay: 690,
         assistDelay: 690,
-        hexaDeal: ((390 + 7 * hexA3) * 11
-            + (450 + 10 * hexA2) * (1 + 0.3 * 3)       // 검기: 4회
+        hexaDeal: (
+            (390 + 7 * hexA3) * 11
+            + (450 + 10 * hexA3) * 3       // 검기: 4회
+            + (450 + 10 * hexA3) * 3 * 0.3 * 3      // 검기 추가타: 3회, 최종 데미지 -70%
         ) * 2.2
     },
     a32: {
@@ -83,8 +85,10 @@ const skills = {
         assist: 'b31',
         delay: 570,
         assistDelay: 90,
-        hexaDeal: ((435 + 4 * hexA3) * 12
-            + (435 + 15 * hexA2) * (1 + 0.3 * 3)       // 검기: 4회
+        hexaDeal: (
+            (435 + 4 * hexA3) * 12
+            + (435 + 15 * hexA3) * 4      // 검기: 4회
+            + (435 + 15 * hexA3) * 4 * 0.3 * 3      // 검기 추가타: 3회, 최종 데미지 -70%
         ) * 2.2
     },
     a41: {
@@ -94,8 +98,9 @@ const skills = {
         assist: 'b41',
         delay: 240,
         assistDelay: 240,
-        hexaDeal: ((175 + 3 * hexA4 + (10 + 2 * hexA1)) * 8
-            + (115 + 2 * hexA4 + (10 + 1 * hexA1)) * 3 * 6      // 회오리 6타
+        hexaDeal: (
+            (175 + 3 * hexA4 + (10 + 2 * hexA1)) * 7
+            + (115 + 2 * hexA4 + (10 + 1 * hexA1)) * 2 * 2      // 소용돌이: 툴팁상 6회이지만 바로 연계시 일반적으로 2회 적중함
         ) * 2.2
     },
     a42: {
@@ -114,9 +119,10 @@ const skills = {
         assist: 'b43',
         delay: 270,
         assistDelay: 270,
-        hexaDeal: ((325 + 5 * hexA4 + (2 * hexA1)) * 10
-            + (325 + 5 * hexA4 + (2 * hexA1)) * 4 * 6       // 회오리 2회
-            + (210 + 4 * hexA4 + (2 * hexA1)) * 4           // 전기 4회
+        hexaDeal: (
+            (325 + 5 * hexA4 + (2 * hexA1)) * 10
+            + (325 + 5 * hexA4 + (2 * hexA1)) * 4 * 2       // 회오리: 툴팁상 6회이지만 일반적으로 2회 적중함
+            + (210 + 4 * hexA4 + (2 * hexA1)) * 4           // 전기: 4회
         ) * 2.2
     },
     b11: {
@@ -169,7 +175,7 @@ const skills = {
         name: '휠 윈드',
         character: 'Beta',
         assist: 'a32',
-        delay: 60,  // 최소
+        delay: 90,  // 최소 60ms, 타협 수치
         assistDelay: 0,  // 어시스트가 없는 스킬
         hexaDeal: ((215 + 5 * hexA3) * 2) * 2.2  // 1회
     },
@@ -254,8 +260,8 @@ function analyzeCombo(codes) {
         log.push(baseAction);
         delay += sk.delay;
 
-        // 2.6초 이내에만 어시스트가 나감
-        if (delay <= 2600) {
+        // 3초 이내에만 어시스트가 나감 (210422 패치)
+        if (delay <= 3000) {
             // 본체에 대응하는 어시스트 스킬
             const assist = skills[sk.assist];
 
